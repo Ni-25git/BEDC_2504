@@ -23,17 +23,42 @@ user.get('/:role' ,async (req,res)=>{
 
 user.post('/add' , async(req,res)=>{
     try {
-        const {username , role } = req.body;
-        if(!username || !role){
+        const {username ,email, role } = req.body;
+        if(!username || !role || !email){
             res.status(401).json({message:'Please provide username and role firstly'})
         }
-        const newUser = new UserModel({username , role})
+        const newUser = new UserModel({username , role , email})
         await newUser.save();
         res.status(201).json({message:'User has been saved',newUser})
     } catch (error) {
-        res.status(404).json({message:'error in registering the user',error})
+        res.status(404).json({message:'error in registering the user',error:error.message})
     }
 });
+
+user.put("/modify/:id" , async (req,res)=>{
+    try {
+        const {id} = req.params;
+        const {email} = req.body;
+
+        const updatedUser = await UserModel.findByIdAndUpdate(id,{email});
+        updatedUser.save()
+        res.status(201).json({message:'User email have been updated'});
+    } catch (error) {
+        res.status(404).json({message:'error in updating' , error:error.message})
+    }
+})
+
+user.delete("/delete/:id" , async (req,res)=>{
+    try {
+        const {id} = req.params;
+
+        const deletedUser = await UserModel.findByIdAndDelete(id);
+        res.status(201).json({message:'User email have been deleted'});
+    } catch (error) {
+        res.status(404).json({message:'error in updating' , error:error.message})
+    }
+});
+
 
 
 
