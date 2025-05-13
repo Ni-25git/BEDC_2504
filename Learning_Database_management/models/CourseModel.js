@@ -6,7 +6,8 @@ const courseSchema = new mongoose.Schema({
   duration: { type: String, required: true },
   maximumCapacity: { type: Number, required: true }
 }, {
-  versionKey: false
+  versionKey: false,
+  timestamps:true
 });
 
 const CourseModel = mongoose.model('Course', courseSchema);

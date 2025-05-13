@@ -21,6 +21,36 @@ course.get('/:instructor',async(req,res)=>{
     }
 });
 
+course.get("/filter", async (req, res) => {
+    try {
+      const { instructor, duration, maximumCapacity } = req.query;
+  
+      const filter = {};
+  
+      if (instructor) {
+        filter.instructor = { $regex: new RegExp(`^${instructor}$`, 'i') }; // case-insensitive match
+      }
+  
+      if (duration) {
+        filter.duration = duration;
+      }
+  
+      if (maximumCapacity) {
+        const capacity = Number(maximumCapacity);
+        if (!isNaN(capacity)) {
+          filter.maximumCapacity = capacity;
+        }
+      }
+  
+      const courses = await CourseModel.find(filter).sort({ createdAt: -1 });
+      console.log(filter)
+  
+      res.status(200).json({ message: 'Filtered course list', courses });
+  
+    } catch (error) {
+      res.status(500).json({ message: 'Error in filtering courses', error: error.message });
+    }
+  });
 
 
 course.post('/add', async (req, res) => {
@@ -45,8 +75,8 @@ course.post('/add', async (req, res) => {
     try {
         const {id} = req.params;
         const {title , instructor , duration} = req.body
-        const updatedCourse = await CourseModel.findByIdAndUpdate(id,{title , instructor , duration});
-        updatedCourse.save();
+        const updatedCourse = await CourseModel.findByIdAndUpdate(id,{title , instructor , duration},{new:true});
+        
 
         if (!title || !instructor || !duration) {
             return res.status(400).json({ message: 'Please provide all course details' });
